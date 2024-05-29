@@ -1,0 +1,19 @@
+{
+  "name": "notion-to-json",
+  "version": "0.0.0",
+  "module": "src/index.ts",
+  "type": "module",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "date-fns": "^3.6.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/date-fns": "^2.6.0",
+    "@types/lodash": "^4.17.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
