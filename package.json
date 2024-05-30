@@ -1,5 +1,5 @@
 {
-  "name": "notion-to-json",
+  "name": "notion2json",
   "version": "0.0.0",
   "module": "src/index.ts",
   "type": "module",
