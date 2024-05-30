@@ -11,7 +11,8 @@
   "devDependencies": {
     "@types/bun": "latest",
     "@types/date-fns": "^2.6.0",
-    "@types/lodash": "^4.17.4"
+    "@types/lodash": "^4.17.4",
+    "semantic-release": "^23.1.1"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
