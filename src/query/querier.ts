@@ -4,7 +4,7 @@ import { chain } from 'lodash'
 import type { DatabaseResponse, PartitionOptions, QueryDatabaseOptions } from './types'
 import { getDecreasingSizePartitionBetween, getIntervals } from './utils'
 
-export class NotionClient extends Client {
+export class NotionQuerier extends Client {
   constructor() {
     super({ auth: Bun.env.NOTION_API_SECRET })
   }
