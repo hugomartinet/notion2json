@@ -19,7 +19,7 @@ export function getDecreasingSizePartitionBetween(a: number, b: number, options?
   return relativeSquaredSteps.map(step => a + Math.round(step ** (1 / exponent)))
 }
 
-export function getIntervals<T>(steps: T[]) {
+export function getIntervals<T>(steps: T[]): [T, T][] {
   if (steps.length < 2) throw new Error('Cannot get interval from less than 2 steps')
-  return steps.slice(0, -1).map((step, index) => [step, steps[index + 1]])
+  return steps.slice(0, -1).map((step, index) => [step, steps[index + 1]!])
 }

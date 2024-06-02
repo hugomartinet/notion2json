@@ -1,9 +1,10 @@
-import type { PageObjectResponse, QueryDatabaseParameters, QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
+import type { QueryDatabaseParameters, QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
+import { Page } from '../common/types'
 
 export type QueryDatabaseOptions = Omit<QueryDatabaseParameters, 'database_id'>
 
 export interface DatabaseResponse extends QueryDatabaseResponse {
-  results: PageObjectResponse[]
+  results: Page[]
 }
 
 export type PartitionOptions = { decreaseRatio?: number; count?: number }

@@ -1,6 +1,6 @@
 import { Client } from '@notionhq/client'
-import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import { chain } from 'lodash'
+import { Page } from '../common/types'
 import type { DatabaseResponse, PartitionOptions, QueryDatabaseOptions } from './types'
 import { getDecreasingSizePartitionBetween, getIntervals } from './utils'
 
@@ -16,7 +16,7 @@ export class NotionQuerier extends Client {
         ...options,
         database_id: databaseId,
       })
-      return { ...response, results: response.results as PageObjectResponse[] }
+      return { ...response, results: response.results as Page[] }
     } catch (error: any) {
       if (error.code === 'notionhq_client_request_timeout') return this.queryDatabasePage(databaseId, options)
       throw error
@@ -24,7 +24,7 @@ export class NotionQuerier extends Client {
   }
 
   public async queryAllDatabasePages(databaseId: string, options?: Omit<QueryDatabaseOptions, 'start_cursor'>) {
-    const results: PageObjectResponse[] = []
+    const results: Page[] = []
     let cursor: string | undefined
     while (true) {
       const query = await this.queryDatabasePage(databaseId, { ...options, start_cursor: cursor })
@@ -35,11 +35,7 @@ export class NotionQuerier extends Client {
     return results
   }
 
-  public async queryMissingDatabasePages(
-    databaseId: string,
-    results: PageObjectResponse[],
-    options?: Omit<QueryDatabaseOptions, 'start_cursor'>
-  ) {
+  public async queryMissingDatabasePages(databaseId: string, results: Page[], options?: Omit<QueryDatabaseOptions, 'start_cursor'>) {
     let cursor: string | undefined
     while (true) {
       const query = await this.queryDatabasePage(databaseId, { ...options, start_cursor: cursor })
@@ -59,6 +55,7 @@ export class NotionQuerier extends Client {
       this.queryDatabasePage(databaseId, { page_size: 1, sorts: [{ timestamp: 'created_time', direction: 'ascending' }] }),
       this.queryDatabasePage(databaseId, { page_size: 1, sorts: [{ timestamp: 'created_time', direction: 'descending' }] }),
     ])
+    if (!oldestPageQuery.results[0] || !newestPageQuery.results[0]) return []
     const oldestCreationTime = new Date(oldestPageQuery.results[0].created_time)
     const newestCreationTime = new Date(newestPageQuery.results[0].created_time)
     const partition = getDecreasingSizePartitionBetween(oldestCreationTime.getTime(), newestCreationTime.getTime(), partitionOptions)
@@ -86,7 +83,7 @@ export class NotionQuerier extends Client {
   }
 
   public async queryDatabaseBidirectionally(databaseId: string, options?: Omit<QueryDatabaseOptions, 'start_cursor' | 'sorts'>) {
-    const results: PageObjectResponse[] = []
+    const results: Page[] = []
     await Promise.all([
       this.queryMissingDatabasePages(databaseId, results, { ...options, sorts: [{ timestamp: 'created_time', direction: 'ascending' }] }),
       this.queryMissingDatabasePages(databaseId, results, { ...options, sorts: [{ timestamp: 'created_time', direction: 'descending' }] }),
