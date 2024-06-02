@@ -1,6 +1,6 @@
 import { Client } from '@notionhq/client'
 import { chain } from 'lodash'
-import { Page } from '../common/types'
+import { Page, PropertyConfig } from '../common/types'
 import type { DatabaseResponse, PartitionOptions, QueryDatabaseOptions } from './types'
 import { getDecreasingSizePartitionBetween, getIntervals } from './utils'
 
@@ -92,5 +92,14 @@ export class NotionQuerier extends Client {
       .uniqBy(result => result.id)
       .sortBy(result => result.created_time)
       .value()
+  }
+
+  public async fetchDatabasePropertyConfigs(databaseId: string): Promise<PropertyConfig[]> {
+    const schema = await this.databases.retrieve({ database_id: databaseId })
+    return Object.values(schema.properties).map(property => ({
+      id: property.id,
+      type: property.type,
+      relation: property.type === 'relation' ? { databaseId: property.relation.database_id } : undefined,
+    }))
   }
 }
