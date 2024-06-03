@@ -1,5 +1,7 @@
 # notion2json
 
+A library built with Bun and Notion API client to extract and parse data from a Notion database.
+
 ## `NotionQuerier`
 
 This class needs a `NOTION_API_SECRET` environment variable in your project.
