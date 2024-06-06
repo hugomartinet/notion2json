@@ -98,6 +98,7 @@ export class NotionQuerier extends Client {
     const schema = await this.databases.retrieve({ database_id: databaseId })
     return Object.values(schema.properties).map(property => ({
       id: property.id,
+      name: property.name,
       type: property.type,
       relation: property.type === 'relation' ? { databaseId: property.relation.database_id } : undefined,
     }))
