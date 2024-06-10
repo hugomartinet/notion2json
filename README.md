@@ -38,7 +38,7 @@ const propertyConfigs = await querier.fetchDatabasePropertyConfigs('478cb452-769
 ### Format database pages
 
 ```typescript
-const formatter = new NotionFormatter({ ['478cb452-7694-467a-9470-1934dc35ca87']: { pages, propertyConfigs } })
+const formatter = new NotionFormatter({ '478cb452-7694-467a-9470-1934dc35ca87': { pages, propertyConfigs } })
 
 // Format all pages in the given database to JSON objects with property ids as keys and property content as values
 const formattedPages = formatter.formatDatabase('478cb452-7694-467a-9470-1934dc35ca87')
