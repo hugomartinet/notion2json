@@ -18,7 +18,7 @@ export class NotionQuerier extends Client {
       })
       return { ...response, results: response.results as Page[] }
     } catch (error: any) {
-      if (error.code === 'notionhq_client_request_timeout') return this.queryDatabasePage(databaseId, options)
+      if (error.status === 502 || error.status === 504) return this.queryDatabasePage(databaseId, options)
       throw error
     }
   }
