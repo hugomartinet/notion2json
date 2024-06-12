@@ -9,7 +9,7 @@ export class NotionQuerier extends Client {
     super({ auth: Bun.env.NOTION_API_SECRET })
   }
 
-  public async queryDatabasePage(databaseId: string, options?: QueryDatabaseOptions): Promise<DatabaseResponse> {
+  public async queryDatabasePage(databaseId: string, options?: QueryDatabaseOptions, retries: number = 0): Promise<DatabaseResponse> {
     try {
       const response = await this.databases.query({
         page_size: 100,
@@ -18,7 +18,7 @@ export class NotionQuerier extends Client {
       })
       return { ...response, results: response.results as Page[] }
     } catch (error: any) {
-      if (error.status === 502 || error.status === 504) return this.queryDatabasePage(databaseId, options)
+      if (retries < 3) return this.queryDatabasePage(databaseId, options, retries + 1)
       throw error
     }
   }
