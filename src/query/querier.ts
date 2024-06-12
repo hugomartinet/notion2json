@@ -35,17 +35,6 @@ export class NotionQuerier extends Client {
     return results
   }
 
-  public async queryMissingDatabasePages(databaseId: string, results: Page[], options?: Omit<QueryDatabaseOptions, 'start_cursor'>) {
-    let cursor: string | undefined
-    while (true) {
-      const query = await this.queryDatabasePage(databaseId, { ...options, start_cursor: cursor })
-      results.push(...query.results)
-      if (!query.has_more || !query.next_cursor || results.some(result => result.id === query.next_cursor)) break
-      cursor = query.next_cursor
-    }
-    return results
-  }
-
   public async queryAllDatabasePagesByPartition(
     databaseId: string,
     partitionOptions?: PartitionOptions,
@@ -84,10 +73,34 @@ export class NotionQuerier extends Client {
 
   public async queryDatabaseBidirectionally(databaseId: string, options?: Omit<QueryDatabaseOptions, 'start_cursor' | 'sorts'>) {
     const results: Page[] = []
-    await Promise.all([
-      this.queryMissingDatabasePages(databaseId, results, { ...options, sorts: [{ timestamp: 'created_time', direction: 'ascending' }] }),
-      this.queryMissingDatabasePages(databaseId, results, { ...options, sorts: [{ timestamp: 'created_time', direction: 'descending' }] }),
-    ])
+    let startCursor: string | undefined
+    let endCursor: string | undefined
+
+    while (true) {
+      const [startQuery, endQuery] = await Promise.all([
+        this.queryDatabasePage(databaseId, {
+          ...options,
+          start_cursor: startCursor,
+          sorts: [{ timestamp: 'created_time', direction: 'ascending' }],
+        }),
+        this.queryDatabasePage(databaseId, {
+          ...options,
+          start_cursor: endCursor,
+          sorts: [{ timestamp: 'created_time', direction: 'descending' }],
+        }),
+      ])
+      results.push(...startQuery.results)
+      results.push(...endQuery.results)
+      if (
+        !startQuery.next_cursor ||
+        !endQuery.next_cursor ||
+        (results.some(result => result.id === startQuery.next_cursor) && results.some(result => result.id === endQuery.next_cursor))
+      )
+        break
+      startCursor = startQuery.next_cursor
+      endCursor = endQuery.next_cursor
+    }
+
     return chain(results)
       .uniqBy(result => result.id)
       .sortBy(result => result.created_time)
