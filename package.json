@@ -2,6 +2,16 @@
   "name": "notion2json",
   "version": "0.0.0",
   "repository": "https://github.com/hugomartinet/notion2json",
+  "keywords": [
+    "notion",
+    "notion-client",
+    "notion-api",
+    "notion-to-json",
+    "notion2json",
+    "json",
+    "format",
+    "query"
+  ],
   "author": "Hugo Martinet",
   "module": "src/index.ts",
   "type": "module",
