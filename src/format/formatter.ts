@@ -35,8 +35,7 @@ export class NotionFormatter {
 
     for (const propertyId of propertyIds) {
       const property = Object.values(page.properties).find(property => property.id === propertyId)
-      if (!property) throw new Error(`Property ${propertyId} not found in page`)
-      formattedPage[propertyId] = this.formatProperty(databaseId, property)
+      if (property) formattedPage[propertyId] = this.formatProperty(databaseId, property)
     }
 
     return formattedPage
