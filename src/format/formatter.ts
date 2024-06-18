@@ -31,6 +31,7 @@ export class NotionFormatter {
     const propertyIds = propertyConfigs.map(config => config.id)
 
     const formattedPage: FormattedPage = Object.fromEntries(propertyIds.map(propertyId => [propertyId, '']))
+    formattedPage.id = { text: page.id, url: page.url }
 
     for (const propertyId of propertyIds) {
       const property = Object.values(page.properties).find(property => property.id === propertyId)
