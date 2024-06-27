@@ -8,5 +8,5 @@ export type RelationProperty = Extract<Property, { type: 'relation' }>
 
 export type Databases = { [databaseId: string]: { pages: Page[]; propertyConfigs: PropertyConfig[] } }
 
-export type FormattedProperty = number | string | boolean | Date | { text: string; url: string }
+export type FormattedProperty = number | string | boolean | Date | { text: string; url: string } | undefined
 export type FormattedPage = { [propertyId: string]: FormattedProperty | FormattedProperty[] }
