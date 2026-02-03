@@ -35,6 +35,22 @@ export class NotionQuerier extends Client {
     return results
   }
 
+  public async queryAllDatabasePagesWithFilterPartition(
+    databaseId: string,
+    filters: QueryDatabaseOptions['filter'][],
+    options?: Omit<QueryDatabaseOptions, 'start_cursor' | 'filter'>
+  ): Promise<Page[]> {
+    const results = await Promise.all(filters.map(filter => this.queryAllDatabasePages(databaseId, { ...options, filter })))
+
+    const pages = chain(results)
+      .flatten()
+      .uniqBy(result => result.id)
+      .sortBy(result => result.created_time)
+      .value()
+
+    return pages
+  }
+
   public async queryAllDatabasePagesByPartition(
     databaseId: string,
     partitionOptions?: PartitionOptions,
@@ -49,26 +65,16 @@ export class NotionQuerier extends Client {
     const newestCreationTime = new Date(newestPageQuery.results[0].created_time)
     const partition = getDecreasingSizePartitionBetween(oldestCreationTime.getTime(), newestCreationTime.getTime(), partitionOptions)
     const intervals = getIntervals(partition)
+    const filters: QueryDatabaseOptions['filter'][] = intervals.map(interval => ({
+      and: [
+        { created_time: { on_or_after: new Date(interval[0]).toISOString() }, timestamp: 'created_time' },
+        { created_time: { on_or_before: new Date(interval[1]).toISOString() }, timestamp: 'created_time' },
+      ],
+    }))
 
-    const results = await Promise.all(
-      intervals.map(interval =>
-        this.queryAllDatabasePages(databaseId, {
-          ...options,
-          filter: {
-            and: [
-              { created_time: { on_or_after: new Date(interval[0]).toISOString() }, timestamp: 'created_time' },
-              { created_time: { on_or_before: new Date(interval[1]).toISOString() }, timestamp: 'created_time' },
-            ],
-          },
-        })
-      )
-    )
+    const pages = await this.queryAllDatabasePagesWithFilterPartition(databaseId, filters, options)
 
-    return chain(results)
-      .flatten()
-      .uniqBy(result => result.id)
-      .sortBy(result => result.created_time)
-      .value()
+    return pages
   }
 
   public async queryDatabaseBidirectionally(
