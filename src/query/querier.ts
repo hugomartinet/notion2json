@@ -23,7 +23,7 @@ export class NotionQuerier extends Client {
     }
   }
 
-  public async queryAllDatabasePages(databaseId: string, options?: Omit<QueryDatabaseOptions, 'start_cursor'>) {
+  public async queryAllDatabasePages(databaseId: string, options?: Omit<QueryDatabaseOptions, 'start_cursor'>): Promise<Page[]> {
     const results: Page[] = []
     let cursor: string | undefined
     while (true) {
@@ -39,7 +39,7 @@ export class NotionQuerier extends Client {
     databaseId: string,
     partitionOptions?: PartitionOptions,
     options?: Omit<QueryDatabaseOptions, 'start_cursor' | 'filter'>
-  ) {
+  ): Promise<Page[]> {
     const [oldestPageQuery, newestPageQuery] = await Promise.all([
       this.queryDatabasePage(databaseId, { page_size: 1, sorts: [{ timestamp: 'created_time', direction: 'ascending' }] }),
       this.queryDatabasePage(databaseId, { page_size: 1, sorts: [{ timestamp: 'created_time', direction: 'descending' }] }),
@@ -71,7 +71,10 @@ export class NotionQuerier extends Client {
       .value()
   }
 
-  public async queryDatabaseBidirectionally(databaseId: string, options?: Omit<QueryDatabaseOptions, 'start_cursor' | 'sorts'>) {
+  public async queryDatabaseBidirectionally(
+    databaseId: string,
+    options?: Omit<QueryDatabaseOptions, 'start_cursor' | 'sorts'>
+  ): Promise<Page[]> {
     const results: Page[] = []
     let startCursor: string | undefined
     let endCursor: string | undefined
